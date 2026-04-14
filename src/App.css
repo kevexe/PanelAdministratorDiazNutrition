@@ -1,0 +1,182 @@
+/* --- CONFIGURACIÓN GENERAL --- */
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  /* Fondo negro puro (hasta que pongas tu imagen) */
+  background-color: #000; 
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: white;
+  /* --- ESTO ELIMINA LAS LÍNEAS LATERALES --- */
+  overflow-x: hidden; /* Prohíbe el desbordamiento horizontal */
+  width: 100vw; /* Asegura que ocupe el 100% del ancho del visor */
+}
+
+/* --- CONTENEDOR PRINCIPAL DEL LOGIN --- */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  width: 100%; /* Asegura que el contenedor no empuje hacia los lados */
+}
+
+/* --- ESTILO PARA TU LOGO (Imagen) --- */
+.logo-teamdiaz {
+  width: 200px; /* Ajusta el tamaño de tu logo aquí */
+  height: auto;
+  object-fit: contain;
+}
+
+/* --- CUADRO DE LOGIN ESTILO CRISTAL (Glassmorphism) --- */
+/* --- EL CUADRO DE CRISTAL (Glassmorphism) --- */
+.glass-card {
+  /* Fondo muy transparente con un toque oscuro */
+  background: rgba(255, 255, 255, 0.05); 
+  
+  /* EFECTO DE DESENFOQUE (Cristal de Apple) */
+  backdrop-filter: blur(20px); 
+  -webkit-backdrop-filter: blur(20px);
+  
+  /* Bordes suaves y sombra para dar profundidad */
+  border: 1px solid rgba(255, 196, 0, 0.1);
+
+  border-radius: 25px;
+  padding: 50px;
+  width: 350px;
+  text-align: center;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+  
+  /* Para que se mantenga encima de todo */
+  z-index: 10;
+}
+
+/* --- TÍTULO Y TEXTOS INTERNOS --- */
+h2 {
+  font-size: 14px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 30px;
+}
+
+/* --- ESTILO DE LOS INPUTS DENTRO DEL CUADRO --- */
+input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  color: white;
+  margin-bottom: 15px;
+  outline: none;
+}
+
+/* --- INPUTS Y BOTÓN MINIMALISTAS --- */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+
+input::placeholder {
+  color: rgba(255,255,255,0.4);
+}
+
+.apple-btn {
+  background: white;
+  color: black;
+  border: none;
+  padding: 15px;
+  width: 100%;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.apple-btn:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+
+
+
+
+
+
+
+
+
+
+/* Layout de 3 columnas */
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 250px 1fr 300px;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  color: white;
+}
+
+/* Sidebar izquierda */
+.sidebar {
+  background: #111;
+  border-right: 1px solid #222;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.patient-item {
+  padding: 12px;
+  border-bottom: 1px solid #222;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.patient-item.active {
+  background: #222;
+  color: #fff;
+  border-left: 3px solid #fff;
+}
+
+/* Contenido Central */
+.main-content {
+  padding: 40px;
+  overflow-y: auto;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.stat-card {
+  background: #1a1a1a;
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+}
+
+/* Panel Derecho (Preview) */
+.preview-panel {
+  background: #0a0a0a;
+  border-left: 1px solid #222;
+  padding: 20px;
+  text-align: center;
+}
+
+.phone-mockup img {
+  width: 100%;
+  max-width: 200px;
+  margin-top: 20px;
+  border-radius: 20px;
+}
