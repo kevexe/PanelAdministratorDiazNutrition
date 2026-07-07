@@ -1,59 +1,96 @@
-/* --- CONFIGURACIÓN GENERAL --- */
+/* ==========================================================================
+   1. DIRECTIVAS DE ENRUTAMIENTO DE TAILWIND CSS
+   ========================================================================== */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   2. CONFIGURACIÓN GENERAL Y RESETEO
+   ========================================================================== */
+/* ==========================================================================
+   2. CONFIGURACIÓN GENERAL Y RESETEO
+   ========================================================================== */
 body {
   margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  /* Fondo negro puro (hasta que pongas tu imagen) */
-  background-color: #000; 
+  background-color: #131314; 
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: white;
-  /* --- ESTO ELIMINA LAS LÍNEAS LATERALES --- */
-  overflow-x: hidden; /* Prohíbe el desbordamiento horizontal */
-  width: 100vw; /* Asegura que ocupe el 100% del ancho del visor */
+  overflow-x: hidden; 
 }
 
-/* --- CONTENEDOR PRINCIPAL DEL LOGIN --- */
+/* En React, todo vive dentro de un div con id "root" */
+#root {
+  width: 100vw;
+  min-height: 100vh;
+  display: block;
+}
+
+/* Custom Scrollbar moderno para paneles con scroll */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 218, 243, 0.2);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 218, 243, 0.5);
+}
+/* Custom Scrollbar moderno para paneles con scroll */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 218, 243, 0.2);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 218, 243, 0.5);
+}
+
+/* ==========================================================================
+   3. ESTILOS DEL MÓDULO DE LOGIN (ESTILO APPLE / CRISTAL)
+   ========================================================================== */
 .login-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 40px;
-  width: 100%; /* Asegura que el contenedor no empuje hacia los lados */
+  width: 100%; 
 }
 
-/* --- ESTILO PARA TU LOGO (Imagen) --- */
 .logo-teamdiaz {
-  width: 200px; /* Ajusta el tamaño de tu logo aquí */
+  width: 200px; 
   height: auto;
   object-fit: contain;
 }
 
-/* --- CUADRO DE LOGIN ESTILO CRISTAL (Glassmorphism) --- */
-/* --- EL CUADRO DE CRISTAL (Glassmorphism) --- */
+/* Cuadro estilo cristal (Glassmorphism) */
 .glass-card {
-  /* Fondo muy transparente con un toque oscuro */
   background: rgba(255, 255, 255, 0.05); 
   
-  /* EFECTO DE DESENFOQUE (Cristal de Apple) */
+  /* Efecto de desenfoque nativo */
   backdrop-filter: blur(20px); 
   -webkit-backdrop-filter: blur(20px);
   
-  /* Bordes suaves y sombra para dar profundidad */
   border: 1px solid rgba(255, 196, 0, 0.1);
-
   border-radius: 25px;
   padding: 50px;
   width: 350px;
   text-align: center;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-  
-  /* Para que se mantenga encima de todo */
   z-index: 10;
 }
 
-/* --- TÍTULO Y TEXTOS INTERNOS --- */
 h2 {
   font-size: 14px;
   letter-spacing: 3px;
@@ -62,7 +99,14 @@ h2 {
   margin-bottom: 30px;
 }
 
-/* --- ESTILO DE LOS INPUTS DENTRO DEL CUADRO --- */
+/* Grupo de entradas y campos */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
 input {
   width: 100%;
   background: rgba(255, 255, 255, 0.1);
@@ -74,19 +118,11 @@ input {
   outline: none;
 }
 
-/* --- INPUTS Y BOTÓN MINIMALISTAS --- */
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-bottom: 30px;
-}
-
-
 input::placeholder {
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
 }
 
+/* Botón Minimalista tipo Apple */
 .apple-btn {
   background: white;
   color: black;
@@ -104,17 +140,9 @@ input::placeholder {
   background: rgba(255, 255, 255, 0.8);
 }
 
-
-
-
-
-
-
-
-
-
-
-/* Layout de 3 columnas */
+/* ==========================================================================
+   4. LAYOUT DEL DASHBOARD (ESTRUCTURA DE 3 COLUMNAS)
+   ========================================================================== */
 .dashboard-layout {
   display: grid;
   grid-template-columns: 250px 1fr 300px;
@@ -146,7 +174,7 @@ input::placeholder {
   border-left: 3px solid #fff;
 }
 
-/* Contenido Central */
+/* Contenido Central Dinámico */
 .main-content {
   padding: 40px;
   overflow-y: auto;
@@ -166,7 +194,7 @@ input::placeholder {
   text-align: center;
 }
 
-/* Panel Derecho (Preview) */
+/* Panel Derecho (Vista de Previsualización Móvil) */
 .preview-panel {
   background: #0a0a0a;
   border-left: 1px solid #222;
@@ -179,4 +207,99 @@ input::placeholder {
   max-width: 200px;
   margin-top: 20px;
   border-radius: 20px;
+}
+
+/* ==========================================================================
+   5. COMPLEMENTOS DE CRISTAL / EFECTOS ADICIONALES (TITAN PERFORMANCE)
+   ========================================================================== */
+.glass-panel {
+  background: rgba(28, 28, 30, 0.8);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ambient-shadow {
+  box-shadow: 0 8px 40px rgba(0, 218, 243, 0.05);
+}
+
+.data-card {
+  background: linear-gradient(180deg, rgba(26, 28, 30, 1) 0%, rgba(19, 19, 20, 1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+
+/* Personalización de la barra de desplazamiento */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #353436; /* Un gris oscuro sutil */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #57595b; /* Se aclara un poco al pasar el mouse */
+}
+
+/* Para Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #353436 transparent;
+}
+
+
+@import "tailwindcss";
+
+@theme {
+  /* Los colores exactos extraídos de la segunda imagen (Look Carbón/Teal Oscuro) */
+  --color-background: #0a1111;
+  --color-surface: #0e1617;
+  --color-surface-variant: #1a2425;
+  --color-outline-variant: #263335;
+  
+  /* El Cyan Eléctrico de los botones y textos destacados */
+  --color-primary-container: #00f2ff;
+  --color-primary-fixed-dim: #00dbe7;
+  
+  /* Textos */
+  --color-on-background: #e1eded;
+  --color-on-surface: #dce4e4;
+  --color-on-surface-variant: #99aab0;
+
+  /* Tipografías de la imagen 2 */
+  --font-serif-title: "Bodoni Moda", serif;
+  --font-sans-body: "Inter", sans-serif;
+}
+
+/* Importar fuentes directamente si no se cargan desde el HTML */
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+  background-color: #0a1111;
+  color: #e1eded;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Efecto de cristal translúcido idéntico a los paneles de la segunda imagen */
+.glass-panel {
+  background: rgba(14, 22, 23, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.inner-glow-top {
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+/* El degradado superior del fondo de la imagen 2 */
+.top-glow-bg {
+  background: radial-gradient(100% 100% at 50% 0%, rgba(0, 242, 255, 0.07) 0%, rgba(10, 17, 17, 0) 60%);
 }

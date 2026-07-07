@@ -1,3 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ... el resto de tu código que configuramos antes ... */
 :root {
   margin: 0;
   padding: 0;

@@ -1,332 +1,353 @@
-import { useState, useEffect } from 'react'
-import { db, auth } from './firebase' 
-import { collection, getDocs, addDoc, serverTimestamp } from 'firebase/firestore'
-import { signInWithEmailAndPassword } from "firebase/auth";
-import './App.css'
+import React, { useState, useEffect } from "react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { db } from "./firebase/firebase";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import TitanDatabase from "./features/admin/TitanDatabase"; // Asegúrate de apuntar a la carpeta donde lo creaste
+
+// --- PAGES ---
+import Dashboard from "./pages/Dashboard";
+
+// --- FEATURES ---
+import TitanPatientAnalysis from "./features/patients/TitanPatientAnalysis"; 
+import TitanTraining from "./features/training/TitanTraining";
+import TitanAdvancedComparison from "./features/analytics/TitanAdvancedComparison";
+import TitanAgenda from "./features/agenda/TitanAgenda";
+import TitanActivationCodes from "./features/admin/TitanActivationCodes";
+import TitanPatientRegistration from "./features/patients/TitanPatientRegistration"; 
+
+// --- LAYOUTS ---
+import TitanApp from "./layouts/TitanApp";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [cargando, setCargando] = useState(false);
-  const [pacientes, setPacientes] = useState([])
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [mostrarModalPacientes, setMostrarModalPacientes] = useState(false);
+  const [rutaDestinoModal, setRutaDestinoModal] = useState("");
   
-  const [pacienteSeleccionado, setPacienteSeleccionado] = useState(null);
-  const [vistaActual, setVistaActual] = useState("expediente"); 
+  // Estados para Firebase y Buscador de la Barra Lateral
+  const [pacientes, setPacientes] = useState([]);
+  const [busqueda, setBusqueda] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // ESTADOS PARA LA PORTADA (Arriba)
-  const [nuevaPortada, setNuevaPortada] = useState({ titulo: "", descripcion: "", imagenUrl: "" });
-  const [planCreado, setPlanCreado] = useState(null); 
+const [idAtletaActual, setIdAtletaActual] = useState(sessionStorage.getItem("atleta_seleccionado_id"));
 
-  // ESTADOS PARA LAS COMIDAS (Abajo)
-  const [tipoComida, setTipoComida] = useState("Desayuno"); 
-  const [nuevaComida, setNuevaComida] = useState({ titulo: "", descripcion: "", imagenUrl: "" });
+  const isActive = (path) => location.pathname === path;
 
-  const handleLogin = async () => {
-    const emailInput = document.getElementById('user');
-    const passInput = document.getElementById('pass');
-    if (!emailInput || !passInput) return;
+  // --- ESCUCHA DE CLIENTES DESDE LA NUEVA COLECCIÓN 'usuarios' ---
+  useEffect(() => {
+    // 1. Consultamos solo a los usuarios que son afiliados y están activos
+    const q = query(
+      collection(db, "usuarios"),
+      where("estadoDeCuenta", "==", "afiliado"),
+      where("isActive", "==", true)
+    );
     
-    try {
-      await signInWithEmailAndPassword(auth, emailInput.value, passInput.value);
-      setIsLoggedIn(true);
-    } catch (error) {
-      alert("Acceso denegado: Usuario o contraseña incorrectos");
-    }
-  };
 
-  const obtenerPacientes = async () => {
-    setCargando(true);
-    try {
-      const querySnapshot = await getDocs(collection(db, "Clientes"));
-      const lista = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setPacientes(lista);
-    } catch (error) {
-      console.error("Error al obtener clientes:", error);
-    }
-    setCargando(false);
-  };
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const docs = [];
+      
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        
+        // 2. Extraemos las iniciales inteligentemente
+        let iniciales = "PT";
+        if (data.nombre) {
+           const nombreCompleto = `${data.nombre} ${data.apellido || ''}`.trim();
+           const palabras = nombreCompleto.split(" ");
+           iniciales = palabras.length > 1 
+            ? `${palabras[0][0]}${palabras[1][0]}`.toUpperCase() 
+            : `${palabras[0][0]}`.toUpperCase();
+        }
 
-  // FUNCION PARA GUARDAR SECCION 1 (PORTADA)
-  const guardarPortada = async () => {
-    if (!pacienteSeleccionado) return alert("Selecciona un paciente primero");
-    if (!nuevaPortada.titulo || !nuevaPortada.imagenUrl) return alert("Ponle título e imagen a la portada");
-
-    try {
-      const planesRef = collection(db, "Clientes", pacienteSeleccionado.id, "Planes");
-      const docRef = await addDoc(planesRef, {
-        titulo: nuevaPortada.titulo,
-        descripcion: nuevaPortada.descripcion,
-        imagenUrl: nuevaPortada.imagenUrl,
-        fecha: serverTimestamp(),
-        tipo: "portada_dieta"
+        docs.push({ 
+          id: doc.id, 
+          iniciales,
+          ...data 
+        });
       });
 
-      alert("¡Portada creada! Todas las comidas que agregues abajo se guardarán dentro de esta portada.");
-      setPlanCreado({ id: docRef.id, titulo: nuevaPortada.titulo }); 
-    } catch (error) {
-      console.error("Error al guardar portada:", error);
-      alert("Hubo un error al crear la portada");
-    }
+      // 3. Ordenamos alfabéticamente por nombre (Hecho en JS para no requerir índices en Firebase)
+      docs.sort((a, b) => (a.nombre || "").localeCompare(b.nombre || ""));
+
+      // 4. Actualizamos el estado que alimenta la barra lateral
+      setPacientes(docs);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error cargando la colección de afiliados:", error);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // --- LÓGICA DE FILTRADO (BÚSQUEDA POR NOMBRE E ID) ---
+  const pacientesFiltrados = pacientes.filter((p) => {
+    const queryLower = busqueda.toLowerCase();
+    const nombreCompleto = `${p.nombre || ''} ${p.apellido || ''}`.toLowerCase();
+    const matchNombre = nombreCompleto.includes(queryLower);
+    const matchId = p.id?.toLowerCase().includes(queryLower);
+    const matchDui = p.identificacion?.toLowerCase().includes(queryLower); // Ajustado al campo que creamos en tu registro
+    return matchNombre || matchId || matchDui;
+  });
+
+  const abrirSelectorPacientes = (ruta) => {
+    setRutaDestinoModal(ruta);
+    setMostrarModalPacientes(true);
   };
 
-  // FUNCION PARA GUARDAR SECCION 2 (COMIDAS - INTELIGENTE)
-  const guardarComida = async () => {
-    if (!nuevaComida.titulo || !nuevaComida.imagenUrl) return alert("Faltan datos de la comida");
-
-    try {
-      if (planCreado) {
-        // MODO 1: Hay portada creada, lo guardamos ADENTRO
-        const comidasRef = collection(db, "Clientes", pacienteSeleccionado.id, "Planes", planCreado.id, "Comidas");
-        await addDoc(comidasRef, {
-          titulo: nuevaComida.titulo,
-          descripcion: nuevaComida.descripcion,
-          imagenUrl: nuevaComida.imagenUrl,
-          tiempoComida: tipoComida,
-          fecha: serverTimestamp(),
-          tipo: "opcion_comida"
-        });
-        alert(`¡${tipoComida} agregado exitosamente a la portada "${planCreado.titulo}"!`);
-      } else {
-        // MODO 2: Se saltaron la portada, lo guardamos como TARJETA SUELTA (Directo en Planes)
-        const planesRef = collection(db, "Clientes", pacienteSeleccionado.id, "Planes");
-        await addDoc(planesRef, {
-          titulo: nuevaComida.titulo,
-          descripcion: nuevaComida.descripcion,
-          imagenUrl: nuevaComida.imagenUrl,
-          tiempoComida: tipoComida,
-          fecha: serverTimestamp(),
-          tipo: "opcion_comida_suelta"
-        });
-        alert(`¡${tipoComida} enviado como tarjeta individual a ${pacienteSeleccionado.Nombre}!`);
-      }
-      
-      // Limpiamos el formulario para la siguiente comida
-      setNuevaComida({ titulo: "", descripcion: "", imagenUrl: "" }); 
-    } catch (error) {
-      console.error("Error al guardar comida:", error);
-      alert("Hubo un error al guardar la comida");
-    }
+ const seleccionarPaciente = (paciente) => {
+    setMostrarModalPacientes(false);
+    sessionStorage.setItem("atleta_seleccionado_id", paciente.id);
+    setIdAtletaActual(paciente.id); // <--- AÑADE ESTA LÍNEA
+    navigate(rutaDestinoModal);
   };
-
-  useEffect(() => {
-    if (isLoggedIn) obtenerPacientes();
-  }, [isLoggedIn]);
-
-  if (!isLoggedIn) {
-    return (
-      <div className="login-container">
-        <img src="/Logo.png" alt="Logo" className="logo-teamdiaz" />
-        <div className="glass-card">
-          <h2>ACCESO NUTRICIONISTA</h2>
-          <div className="input-group">
-            <input type="email" id="user" placeholder="Usuario o Correo" />
-            <input type="password" id="pass" placeholder="Contraseña" />
-          </div>
-          <button className="apple-btn" onClick={handleLogin}>ENTRAR</button>
-        </div>
-      </div>
-    )
-  }
 
   return (
-    <div className="dashboard-layout" style={{ display: 'flex', width: '100vw', minHeight: '100vh', overflowX: 'hidden' }}>
+    <div className="bg-[#131314] text-[#e5e2e3] font-sans antialiased h-screen flex overflow-hidden selection:bg-[#00daf3]/30 selection:text-[#c3f5ff] relative">
       
-      {/* BARRA LATERAL IZQUIERDA */}
-      <aside className="sidebar" style={{ width: '250px', flexShrink: 0 }}>
-        <div className="search-box">
-          <input type="text" placeholder="Buscar..." onChange={(e) => setSearchTerm(e.target.value)} />
-        </div>
-        <div className="patient-list">
-          <h3>Clientes</h3>
-          {cargando ? <p>Cargando lista...</p> : 
-            pacientes.map(p => (
-              <div 
-                key={p.id} 
-                className={`patient-item ${pacienteSeleccionado?.id === p.id ? 'active' : ''}`}
-                onClick={() => {
-                  setPacienteSeleccionado(p);
-                  setVistaActual("expediente"); 
-                  setPlanCreado(null); 
-                  setNuevaPortada({ titulo: "", descripcion: "", imagenUrl: "" });
-                  setNuevaComida({ titulo: "", descripcion: "", imagenUrl: "" });
-                }}
-              >
-                {p.Nombre || "Cliente sin nombre"} 
-              </div>
-            ))
-          }
-        </div>
-        <button className="logout-link" onClick={() => setIsLoggedIn(false)}>Cerrar Sesión</button>
-      </aside>
-
-      {/* PANEL CENTRAL DINÁMICO */}
-      <main className="main-content" style={{ flex: 1, padding: '40px', boxSizing: 'border-box' }}>
-        {pacienteSeleccionado ? (
-          vistaActual === "expediente" ? (
-            // VISTA 1: EXPEDIENTE
-            <div className="view-container">
-              <header className="main-header">
-                <h1>Expediente: {pacienteSeleccionado.Nombre} {pacienteSeleccionado.Apellido}</h1>
-                <button className="update-btn" onClick={() => {
-                  setVistaActual("crear-tarjeta");
-                  setPlanCreado(null);
-                }}>
-                  + Crear Nuevo Plan de Alimentación
-                </button>
-              </header>
-              <section className="stats-grid">
-                <div className="stat-card"><h4>Estatura</h4><p>{pacienteSeleccionado.Estatura || 0} cm</p></div>
-                <div className="stat-card"><h4>Peso</h4><p>{pacienteSeleccionado.Peso || 0} kg</p></div>
-                <div className="stat-card"><h4>Meta</h4><p>{pacienteSeleccionado.Meta_Objetivo || "No definida"}</p></div>
-              </section>
-            </div>
-          ) : (
-            // VISTA 2: CREADOR DIVIDIDO EN DOS SECCIONES
-            <div className="view-container" style={{ width: '100%', paddingBottom: '100px' }}>
-              <header className="main-header">
-                <h1>Diseñando para {pacienteSeleccionado.Nombre}</h1>
-                <button className="back-btn" onClick={() => setVistaActual("expediente")} style={{padding: '8px 16px', cursor:'pointer'}}>
-                   Terminar y Volver al Expediente
-                </button>
-              </header>
-
-              {/* =========================================
-                  SECCIÓN 1: PORTADA PRINCIPAL (ARRIBA)
-                  ========================================= */}
-              <div style={{ marginTop: '20px', padding: '20px', backgroundColor: '#1a1a1a', borderRadius: '15px' }}>
-                <h2 style={{ color: '#ff9800', borderBottom: '1px solid #333', paddingBottom: '10px', fontSize: '20px' }}>
-                  Opción A: Crear Plan Completo (Carpeta)
-                </h2>
-                <div className="editor-grid" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%', marginTop: '20px' }}>
-                  
-                  {/* FORMULARIO PORTADA */}
-                  <div className="form-inputs" style={{ flex: '1', display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '50%' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <label style={{ fontWeight: 'bold' }}>Título del Plan</label>
-                      <input type="text" placeholder="Ej: Dieta de Volumen Abril" value={nuevaPortada.titulo} onChange={(e) => setNuevaPortada({...nuevaPortada, titulo: e.target.value})} style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ccc', backgroundColor: '#222', color: 'white' }} />
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <label style={{ fontWeight: 'bold' }}>Descripción o Mensaje</label>
-                      <textarea placeholder="Escribe un resumen o palabras de ánimo..." value={nuevaPortada.descripcion} onChange={(e) => setNuevaPortada({...nuevaPortada, descripcion: e.target.value})} style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ccc', minHeight: '80px', backgroundColor: '#222', color: 'white' }} />
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <label style={{ fontWeight: 'bold' }}>Link de la Imagen (URL)</label>
-                      <input type="text" placeholder="https://ejemplo.com/foto.jpg" value={nuevaPortada.imagenUrl} onChange={(e) => setNuevaPortada({...nuevaPortada, imagenUrl: e.target.value})} style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ccc', backgroundColor: '#222', color: 'white' }} />
-                    </div>
-                  </div>
-
-                  {/* PREVIEW PORTADA */}
-                  <div className="mobile-preview-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '350px' }}>
-                     <h3 style={{ marginBottom: '10px' }}>Preview Portada</h3>
-                     <div className="mockup-phone" style={{ border: '10px solid #222', borderRadius: '35px', padding: '15px', width: '280px', height: '480px', backgroundColor: '#121212', color: 'white' }}>
-                        <div className="app-card-preview" style={{ backgroundColor: '#1e1e1e', borderRadius: '20px', overflow: 'hidden' }}>
-                          {nuevaPortada.imagenUrl ? 
-                            <img src={nuevaPortada.imagenUrl} alt="Preview" style={{ width: '100%', height: '180px', objectFit: 'cover' }}/> 
-                            : <div style={{ width: '100%', height: '180px', backgroundColor: '#2d2d2d', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666' }}>Sin Imagen</div>
-                          }
-                          <div className="card-info" style={{ padding: '15px' }}>
-                             <h4 style={{ margin: '0 0 10px 0', fontSize: '18px', color: '#fff' }}>{nuevaPortada.titulo || "Título Portada"}</h4>
-                             <p style={{ margin: '0', fontSize: '14px', color: '#aaa' }}>{nuevaPortada.descripcion || "Descripción..."}</p>
-                          </div>
-                        </div>
-                     </div>
-                     <button onClick={guardarPortada} style={{ marginTop: '20px', padding: '12px 24px', backgroundColor: planCreado ? '#4CAF50' : '#ff9800', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', width: '280px' }}>
-                        {planCreado ? "✅ Portada Lista" : "🚀 Crear Portada"}
-                     </button>
-                  </div>
-                </div>
-              </div>
-
-
-              {/* =========================================
-                  SECCIÓN 2: COMIDAS (ABAJO)
-                  ========================================= */}
-              {/* ¡Magia! Ya no tiene el opacity 0.4 ni está bloqueado */}
-              <div style={{ marginTop: '40px', padding: '20px', backgroundColor: '#1a1a1a', borderRadius: '15px' }}>
-                <h2 style={{ color: '#4CAF50', borderBottom: '1px solid #333', paddingBottom: '10px', fontSize: '20px' }}>
-                  Opción B: Agregar Comida 
-                </h2>
-                
-                {/* Texto dinámico para que el nutri sepa qué va a pasar */}
-                <p style={{color: '#aaa', fontStyle: 'italic', marginTop: '10px'}}>
-                  {planCreado 
-                    ? <span>Destino: Guardando dentro de la portada <strong>"{planCreado.titulo}"</strong></span> 
-                    : <span>Destino: Se enviará como una <strong>Tarjeta Individual Suelta</strong> (Sin Portada)</span>
-                  }
-                </p>
-                
-                <div className="editor-grid" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%', marginTop: '20px' }}>
-                  
-                  {/* FORMULARIO COMIDAS */}
-                  <div className="form-inputs" style={{ flex: '1', display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '50%' }}>
-                    
-                    {/* BOTONES DE TIEMPO */}
-                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '10px' }}>
-                      {['Desayuno', 'Almuerzo', 'Cena', 'Snack'].map((tipo) => (
-                        <button key={tipo} onClick={() => setTipoComida(tipo)}
-                          style={{
-                            padding: '10px 15px', borderRadius: '8px', border: 'none',
-                            backgroundColor: tipoComida === tipo ? '#4CAF50' : '#333', color: 'white',
-                            cursor: 'pointer', fontWeight: 'bold', transition: '0.2s'
-                          }}>
-                          {tipo}
-                        </button>
-                      ))}
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <label style={{ fontWeight: 'bold' }}>Título de la Opción</label>
-                      <input type="text" placeholder="Ej: Huevos con espinaca" value={nuevaComida.titulo} onChange={(e) => setNuevaComida({...nuevaComida, titulo: e.target.value})} style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ccc', backgroundColor: '#222', color: 'white' }} />
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <label style={{ fontWeight: 'bold' }}>Ingredientes / Preparación</label>
-                      <textarea placeholder="Describe los detalles de la receta..." value={nuevaComida.descripcion} onChange={(e) => setNuevaComida({...nuevaComida, descripcion: e.target.value})} style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ccc', minHeight: '100px', backgroundColor: '#222', color: 'white' }} />
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <label style={{ fontWeight: 'bold' }}>Link de la Imagen (URL)</label>
-                      <input type="text" placeholder="https://ejemplo.com/foto.jpg" value={nuevaComida.imagenUrl} onChange={(e) => setNuevaComida({...nuevaComida, imagenUrl: e.target.value})} style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ccc', backgroundColor: '#222', color: 'white' }} />
-                    </div>
-                  </div>
-
-                  {/* PREVIEW COMIDAS */}
-                  <div className="mobile-preview-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '350px' }}>
-                     <h3 style={{ marginBottom: '10px' }}>Preview Comida</h3>
-                     <div className="mockup-phone" style={{ border: '10px solid #222', borderRadius: '35px', padding: '15px', width: '280px', height: '480px', backgroundColor: '#121212', color: 'white', position: 'relative' }}>
-                        <div className="app-card-preview" style={{ backgroundColor: '#1e1e1e', borderRadius: '20px', overflow: 'hidden', position: 'relative' }}>
-                          
-                          <div style={{ position: 'absolute', top: '10px', left: '10px', backgroundColor: 'rgba(0,0,0,0.7)', padding: '5px 10px', borderRadius: '15px', fontSize: '12px', fontWeight: 'bold', color: '#4CAF50', zIndex: 2 }}>
-                            {tipoComida}
-                          </div>
-
-                          {nuevaComida.imagenUrl ? 
-                            <img src={nuevaComida.imagenUrl} alt="Preview" style={{ width: '100%', height: '180px', objectFit: 'cover' }}/> 
-                            : <div style={{ width: '100%', height: '180px', backgroundColor: '#2d2d2d', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666' }}>Sin Imagen</div>
-                          }
-                          <div className="card-info" style={{ padding: '15px' }}>
-                             <h4 style={{ margin: '0 0 10px 0', fontSize: '18px', color: '#fff' }}>{nuevaComida.titulo || "Receta..."}</h4>
-                             <p style={{ margin: '0', fontSize: '14px', color: '#aaa' }}>{nuevaComida.descripcion || "Ingredientes..."}</p>
-                          </div>
-                        </div>
-                     </div>
-                     
-                     {/* EL BOTÓN CAMBIA DE TEXTO PARA SER MÁS CLARO */}
-                     <button onClick={guardarComida} style={{ marginTop: '20px', padding: '12px 24px', backgroundColor: planCreado ? '#2196F3' : '#9c27b0', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', width: '280px' }}>
-                        {planCreado ? "➕ Agregar a la Portada" : "🚀 Enviar Tarjeta Individual"}
-                     </button>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          )
-        ) : (
-          <div className="select-prompt" style={{textAlign: 'center', marginTop: '50px', fontSize: '20px', color: '#666'}}>
-            Selecciona un cliente de la lista para comenzar
+      {/* ==================== SIDEBAR COMPLETA ==================== */}
+      <nav className="hidden md:flex bg-[#201f20] w-[280px] border-r border-white/10 flex-col py-8 z-50 shrink-0">
+        
+        {/* Marca / Logo */}
+        <div className="px-6 mb-8 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-lg bg-[#00daf3]/20 flex items-center justify-center border border-[#00daf3]/30">
+            <span className="text-[#00daf3] font-bold text-xl">T</span>
           </div>
-        )}
-      </main>
+          <div>
+            <h1 className="text-base font-bold text-[#00daf3]">Titan Performance</h1>
+            <p className="text-[10px] uppercase tracking-wider text-[#bac9cc]">Portal de Monitoreo Elite</p>
+          </div>
+        </div>
+
+        {/* Botón Principal: Redirige al registro */}
+        <div className="px-6 mb-6">
+          <button 
+            onClick={() => navigate('/register-patient')}
+            className="w-full py-3 bg-[#00daf3] text-[#131314] text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-[#c3f5ff] transition-colors flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(0,218,243,0.3)]"
+          >
+            <span>+</span> Nuevo Cliente
+          </button>
+        </div>
+
+        {/* Listado del Menú con Scroll Moderno */}
+        <div className="flex-1 overflow-y-auto px-6 flex flex-col gap-2 
+          [&::-webkit-scrollbar]:w-1.5 
+          [&::-webkit-scrollbar-track]:bg-transparent 
+          [&::-webkit-scrollbar-thumb]:bg-[#00daf3]/20 
+          [&::-webkit-scrollbar-thumb]:rounded-full 
+          hover:[&::-webkit-scrollbar-thumb]:bg-[#00daf3]/40">
+          
+          <button 
+            onClick={() => navigate('/')}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-xs uppercase tracking-wider transition-all w-full text-left ${
+              isActive('/') 
+                ? 'text-[#00daf3] border-r-2 border-[#00daf3] bg-[#00daf3]/5 font-bold' 
+                : 'text-[#bac9cc] hover:bg-white/5 hover:text-white'
+            }`}
+          >
+            <span>📊</span> Panel de Control
+          </button>
+
+          <button 
+            onClick={() => abrirSelectorPacientes('/editor-plan')}
+            className="flex items-center gap-3 px-4 py-3 rounded-lg text-xs uppercase tracking-wider text-[#bac9cc] hover:bg-white/5 hover:text-white transition-all w-full text-left"
+          >
+            <span>🍎</span> Nutrición
+          </button>
+
+          <button 
+            onClick={() => abrirSelectorPacientes('/training')}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-xs uppercase tracking-wider transition-all w-full text-left ${
+              isActive('/training') 
+                ? 'text-[#00daf3] border-r-2 border-[#00daf3] bg-[#00daf3]/5 font-bold' 
+                : 'text-[#bac9cc] hover:bg-white/5 hover:text-white'
+            }`}
+          >
+            <span>🏋️</span> Entrenamiento
+          </button>
+
+          <button 
+            onClick={() => navigate('/agenda')}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-xs uppercase tracking-wider transition-all w-full text-left ${
+              isActive('/agenda') 
+                ? 'text-[#00daf3] border-r-2 border-[#00daf3] bg-[#00daf3]/5 font-bold' 
+                : 'text-[#bac9cc] hover:bg-white/5 hover:text-white'
+            }`}
+          >
+            <span>📅</span> Agenda
+          </button>
+
+          <button 
+            onClick={() => navigate('/generate-codes')}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-xs uppercase tracking-wider transition-all w-full text-left ${
+              isActive('/generate-codes') 
+                ? 'text-[#00daf3] border-r-2 border-[#00daf3] bg-[#00daf3]/5 font-bold' 
+                : 'text-[#bac9cc] hover:bg-white/5 hover:text-white'
+            }`}
+          >
+            <span>🔑</span> Generar Códigos
+          </button>
+
+          {/* NUEVO BOTÓN: BASE DE DATOS */}
+          <button 
+            onClick={() => navigate('/base-datos')}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-xs uppercase tracking-wider transition-all w-full text-left ${
+              isActive('/base-datos') 
+                ? 'text-[#00daf3] border-r-2 border-[#00daf3] bg-[#00daf3]/5 font-bold' 
+                : 'text-[#bac9cc] hover:bg-white/5 hover:text-white'
+            }`}
+          >
+            <span>🗄️</span> Base de Datos
+          </button>
+          
+          <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-xs uppercase tracking-wider text-[#bac9cc] hover:bg-white/5 hover:text-white transition-all w-full text-left">
+            <span>⚙️</span> Configuración
+          </button>
+        </div>
+
+        {/* ==================== BUSCADOR INTEGRADO EN BARRA LATERAL ==================== */}
+        <div className="px-6 mt-auto border-t border-white/5 pt-4 flex flex-col max-h-[220px]">
+          <p className="text-[10px] uppercase tracking-wider text-[#bac9cc] mb-2">🔍 Buscar Atleta (Nombre/ID)</p>
+          
+          <input 
+            type="text" 
+            placeholder="Escribe ID o Nombre..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="w-full bg-[#131314] border border-white/10 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-[#00daf3] placeholder-slate-600 mb-2"
+          />
+
+          <div className="overflow-y-auto space-y-1 pr-1 flex-1 
+            [&::-webkit-scrollbar]:w-1
+            [&::-webkit-scrollbar-thumb]:bg-white/10
+            [&::-webkit-scrollbar-thumb]:rounded-full">
+            {loading ? (
+              <p className="text-[10px] text-slate-500 animate-pulse">Buscando en el servidor...</p>
+            ) : pacientesFiltrados.length === 0 ? (
+              <p className="text-[10px] text-slate-500 italic">No se encontraron coincidencias</p>
+            ) : (
+              pacientesFiltrados.slice(0, 4).map((paciente) => (
+                <div 
+                  key={paciente.id}
+                 onClick={() => {
+                    sessionStorage.setItem("atleta_seleccionado_id", paciente.id);
+                    setIdAtletaActual(paciente.id); // <--- AÑADE ESTA LÍNEA
+                    navigate('/patient');
+                  }}
+                  className="flex items-center gap-2.5 p-1.5 rounded hover:bg-white/5 cursor-pointer transition-colors group"
+                >
+                  <div className="w-6 h-6 rounded-full bg-[#00daf3]/10 border border-[#00daf3]/20 flex items-center justify-center text-[9px] font-bold text-[#00daf3] shrink-0">
+                    {paciente.iniciales}
+                  </div>
+                  <div className="truncate min-w-0 flex-1">
+                    <p className="text-xs text-white font-medium truncate group-hover:text-[#00daf3] transition-colors">{paciente.nombre} {paciente.apellido}</p>
+                    <p className="text-[8px] font-mono text-slate-500 truncate">ID: {paciente.id.substring(0,8)}...</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Footer Sidebar */}
+        <div className="px-6 pt-4 border-t border-white/10 mt-2">
+          <button className="flex items-center gap-3 px-4 py-2 text-xs uppercase tracking-wider text-[#bac9cc] hover:text-white w-full text-left">
+            <span>❓</span> Soporte Técnico
+          </button>
+          <button className="flex items-center gap-3 px-4 py-2 text-xs uppercase tracking-wider text-red-400 hover:text-red-300 mt-1 w-full text-left">
+            <span>🚪</span> Cerrar Sesión
+          </button>
+        </div>
+      </nav>
+
+      {/* ==================== CONTENEDOR DERECHO PRINCIPAL ==================== */}
+      <div className="flex-1 flex flex-col min-w-0 relative">
+        {/* Top Bar / Encabezado */}
+        <header className="bg-[#131314]/85 sticky top-0 z-40 backdrop-blur-2xl border-b border-white/10 flex justify-between items-center w-full px-6 md:px-10 py-4">
+          <div>
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-black text-white">Hola, <span className="text-[#00daf3]">Coach</span></h2>
+              <span className="px-2 py-0.5 bg-[#2a2a2b] rounded font-mono text-[10px] text-[#bac9cc] border border-white/5">SISTEMA COMPLETO</span>
+            </div>
+            <p className="text-xs text-[#bac9cc] italic mt-0.5 opacity-80">"Monitoreo centralizado y escalable conectado a Cloud Firestore."</p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => abrirSelectorPacientes('/editor-plan')}
+              className="px-4 py-2 bg-[#2a2a2b] border border-[#00daf3]/30 text-[#00daf3] text-xs uppercase tracking-wider rounded hover:bg-[#00daf3]/10 transition-colors"
+            >
+              Actualizar Plan
+            </button>
+            <div className="w-8 h-8 rounded-full bg-[#00daf3]/30 border border-[#00daf3] cursor-pointer"></div>
+          </div>
+        </header>
+
+        {/* Vistas de la aplicación intercambiables mediante enrutador */}
+        <div className="flex-1 overflow-y-auto relative">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+          <Route path="/patient" element={<TitanPatientAnalysis key={idAtletaActual} />} />
+            <Route path="/editor-plan" element={<TitanApp />} />
+            <Route path="/training" element={<TitanTraining />} />
+            <Route path="/register-patient" element={<TitanPatientRegistration />} />
+            <Route path="/generate-codes" element={<TitanActivationCodes />} />
+            <Route path="/comparacion" element={<TitanAdvancedComparison />} />
+            <Route path="/agenda" element={<TitanAgenda />} />
+            
+           <Route path="/base-datos" element={<TitanDatabase />} />
+          </Routes>
+        </div>
+      </div>
+
+      {/* ==================== MODAL SELECCIÓN DE PACIENTES ==================== */}
+      {mostrarModalPacientes && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md transition-all">
+          <div className="bg-[#201f20] border border-white/10 w-full max-w-md rounded-xl p-6 shadow-[0_0_50px_rgba(0,218,243,0.15)] flex flex-col gap-4 relative">
+            <div className="flex justify-between items-center pb-2 border-b border-white/5">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <span className="text-[#00daf3]">📋</span> Seleccionar Atleta Activo
+                </h3>
+                <p className="text-xs text-[#bac9cc] mt-0.5">Elige un perfil de la base de datos de Firebase.</p>
+              </div>
+              <button onClick={() => setMostrarModalPacientes(false)} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+              {pacientes.map((paciente) => (
+                <div key={paciente.id} onClick={() => seleccionarPaciente(paciente)} className="flex items-center justify-between p-3 rounded-lg bg-[#131314] border border-white/5 hover:border-[#00daf3]/40 hover:bg-[#00daf3]/5 cursor-pointer transition-all group">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-[#00daf3]/10 border border-[#00daf3]/20 flex items-center justify-center text-xs font-bold text-[#00daf3] group-hover:bg-[#00daf3]/20 transition-colors">
+                      {paciente.iniciales}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-white group-hover:text-[#00daf3] transition-colors">{paciente.nombre} {paciente.apellido}</h4>
+                      {/* Mostrará el teléfono si existe */}
+                      <p className="text-[11px] text-[#bac9cc]">{paciente.modalidad || "PRESENCIAL"} — {paciente.telefono || "Sin Teléfono"}</p>
+                    </div>
+                  </div>
+                  <span className="text-xs text-[#00daf3] opacity-0 group-hover:opacity-100 transition-opacity font-mono font-bold">
+                    Cargar →
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end pt-2 border-t border-white/5">
+              <button onClick={() => setMostrarModalPacientes(false)} className="px-4 py-2 bg-white/5 rounded text-xs font-bold hover:bg-white/10 transition-colors text-[#bac9cc]">
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

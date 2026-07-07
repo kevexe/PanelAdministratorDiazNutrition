@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Comparación Avanzada de Evaluaciones Corporales - Titan Performance</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#74f5ff",
+                        "on-primary-fixed": "#002022",
+                        "on-secondary-container": "#bab8b9",
+                        "primary-fixed-dim": "#00dbe7",
+                        "primary": "#00f2ff",
+                        "error-container": "#93000a",
+                        "tertiary-container": "#fed83a",
+                        "inverse-primary": "#00696f",
+                        "on-error-container": "#ffdad6",
+                        "surface-tint": "#00dbe7",
+                        "surface-container-lowest": "#080f10",
+                        "inverse-surface": "#dce4e4",
+                        "surface-bright": "#333b3b",
+                        "on-tertiary-fixed-variant": "#554500",
+                        "tertiary-fixed": "#ffe173",
+                        "on-surface": "#ffffff",
+                        "inverse-on-surface": "#2a3232",
+                        "surface-variant": "#2e3637",
+                        "error": "#ffb4ab",
+                        "on-secondary-fixed": "#1c1b1c",
+                        "surface-container": "#192122",
+                        "surface-container-highest": "#2e3637",
+                        "outline-variant": "#3a494b",
+                        "on-secondary-fixed-variant": "#474647",
+                        "on-background": "#ffffff",
+                        "surface-container-low": "#151d1e",
+                        "on-error": "#690005",
+                        "on-primary-container": "#006a71",
+                        "on-primary": "#00363a",
+                        "outline": "#849495",
+                        "on-primary-fixed-variant": "#004f54",
+                        "tertiary-fixed-dim": "#e8c423",
+                        "on-tertiary-fixed": "#221b00",
+                        "tertiary": "#fff6e4",
+                        "surface-container-high": "#232b2c",
+                        "secondary-fixed-dim": "#c8c6c7",
+                        "background": "#0d1515",
+                        "secondary-fixed": "#e5e2e3",
+                        "on-secondary": "#ffffff",
+                        "surface": "#0d1515",
+                        "primary-container": "#00f2ff",
+                        "on-surface-variant": "#b9cacb",
+                        "secondary-container": "#49494a",
+                        "on-tertiary-container": "#725e00",
+                        "secondary": "#c8c6c7",
+                        "on-tertiary": "#3b2f00",
+                        "surface-dim": "#0d1515"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "md": "16px",
+                        "gutter": "16px",
+                        "unit": "4px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "xl": "40px",
+                        "margin": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Bodoni Moda"],
+                        "headline-lg": ["Bodoni Moda"],
+                        "mono-data": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "display-lg": ["Bodoni Moda"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "mono-data": ["13px", { "lineHeight": "1", "fontWeight": "500" }],
+                        "label-caps": ["11px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
+        .glass-panel {
+            background-color: rgba(25, 33, 34, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .glass-glow {
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .slider-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            overflow: hidden;
+            border-radius: 0.5rem;
+        }
+        .slider-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .slider-overlay {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .slider-overlay img {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200%;
+            max-width: 200%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .slider-handle {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            bottom: 0;
+            width: 2px;
+            background-color: #00f2ff;
+            cursor: ew-resize;
+            z-index: 10;
+            transform: translateX(-50%);
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+        }
+        .slider-handle::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 32px;
+            height: 32px;
+            background-color: #0d1515;
+            border: 2px solid #00f2ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+        }
+
+        body {
+            background-color: #080f10;
+            background-image: 
+                linear-gradient(rgba(0, 242, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center top;
+        }
+        
+        .cyan-text-glow {
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface min-h-screen font-body-md overflow-x-hidden antialiased flex flex-col md:flex-row selection:bg-primary selection:text-black">
+<!-- SideNavBar -->
+<nav aria-label="Main Navigation" class="hidden md:flex bg-surface-container-lowest/95 backdrop-blur-2xl h-screen w-64 fixed left-0 top-0 z-[60] border-r border-white/5 flex-col py-xl px-md gap-lg">
+<div class="px-sm mb-lg">
+<h1 class="font-headline-md text-headline-md text-primary cyan-text-glow">Titan Performance</h1>
+</div>
+<div class="flex flex-col gap-unit flex-grow">
+<a class="flex items-center gap-md px-sm py-sm rounded group cursor-pointer text-outline hover:text-white hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span class="font-label-caps text-label-caps">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-sm py-sm rounded group cursor-pointer text-primary border-r-2 border-primary bg-primary/5" href="#">
+<span class="material-symbols-outlined text-[20px] fill">group</span>
+<span class="font-label-caps text-label-caps">Patients</span>
+</a>
+<a class="flex items-center gap-md px-sm py-sm rounded group cursor-pointer text-outline hover:text-white hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-[20px]">biotech</span>
+<span class="font-label-caps text-label-caps">Clinical Insights</span>
+</a>
+<a class="flex items-center gap-md px-sm py-sm rounded group cursor-pointer text-outline hover:text-white hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-[20px]">key</span>
+<span class="font-label-caps text-label-caps">Activation Codes</span>
+</a>
+</div>
+<div class="mt-auto flex flex-col gap-lg">
+<a class="flex items-center gap-md px-sm py-sm rounded group cursor-pointer text-outline hover:text-white hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+<button class="w-full bg-primary text-black font-label-caps text-label-caps py-sm px-md rounded-DEFAULT hover:opacity-90 transition-opacity flex justify-center items-center gap-sm shadow-[0_0_15px_rgba(0,242,255,0.2)]">
+<span class="material-symbols-outlined text-[16px]">add</span>
+                New Analysis
+            </button>
+<div class="flex items-center gap-sm px-sm pt-md border-t border-white/5">
+<img alt="Titan Admin Avatar" class="w-8 h-8 rounded-full object-cover border border-white/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJZDhuLp0bSCZB7n1wVFGjgwR8gfCd0810uxsUfQX6qRSu5huFNBJ9LIIpn41EY8u_pKlFMlR9oX7RRQPQ4OVRno_xBrHFx7dkKJ20SHEj9SzHAd4lcGH6gqIbGnSB7VNME6R3e8ZGu9PlgV82ezTJxx8isfATf9_nQMFaQtgLIxI2i_4Pv_fzqxT90-HnPmasF541Asjo9Q_bjZm8jdirDOYzi8Hx-PzL-ExWJ8gEyJHOL6FxCWPzowZ-lzmnuvTpDOV2-Lp3LTRv"/>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-white">Dr. A. Vance</span>
+<span class="text-[10px] text-outline">Elite Performance Lab</span>
+</div>
+</div>
+</div>
+</nav>
+<!-- TopNavBar (Mobile) -->
+<header class="md:hidden w-full sticky top-0 z-50 bg-surface/80 backdrop-blur-xl flex justify-between items-center px-lg py-md border-b border-white/5">
+<h1 class="font-headline-md text-headline-md text-primary cyan-text-glow">Titan</h1>
+<div class="flex gap-md">
+<button class="text-white hover:text-primary transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 w-full md:ml-64 p-md md:p-lg pb-32 md:pb-32 relative max-w-[1600px] mx-auto">
+<!-- Title -->
+<div class="mb-lg">
+<h2 class="font-headline-lg text-headline-lg text-white">Comparación Avanzada de Evaluaciones Corporales</h2>
+<p class="font-body-md text-outline">Command Center - Análisis Evolutivo Multidimensional</p>
+</div>
+<!-- 1. EXECUTIVE HEADER & 2. SELECTOR PANEL -->
+<div class="flex flex-col xl:flex-row gap-lg mb-lg">
+<!-- Executive Header -->
+<div class="glass-panel glass-glow rounded-xl p-lg flex-1 flex flex-col md:flex-row items-start gap-lg border-l-4 border-l-primary relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-[120px] text-primary">analytics</span>
+</div>
+<div class="w-32 h-32 rounded-lg overflow-hidden border border-white/20 flex-shrink-0 relative shadow-[0_0_20px_rgba(0,242,255,0.15)] z-10">
+<img alt="Kevin Calderón Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB06nP74RJpyF3daP8aTUWNPRNeZqtCy4hUj7Admq1_wjRHwN3TnbK-cFSMgNsMk4WtFhtKcxb0Vdo0Ysugxl5-J4KhSvkL3pQeHPV3yfSGVY4gOu0vW3pD8sYAA-Lce-Up0z2N7-I30Lnh7x2EbmjMuKUqXvIC4AGoLcGydzKfUzCCXw-gWv3yEqE4oD2Jr5KNh1wtegWJYse2NogvRJH1NJFDoTRsQCxBQLBawpoywA70elYE8YuYIygAOwjCmrLlsWWrK8yiOA0D"/>
+</div>
+<div class="flex flex-col flex-1 z-10">
+<div class="flex justify-between items-start w-full mb-md">
+<div>
+<h2 class="font-headline-lg text-[36px] text-white leading-tight">Kevin Calderón</h2>
+<div class="flex flex-wrap items-center gap-md mt-sm">
+<span class="font-mono-data text-mono-data text-primary bg-primary/10 px-3 py-1.5 rounded border border-primary/20">ID: TTP-8492</span>
+<span class="font-mono-data text-mono-data text-white flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-outline">calendar_today</span> 28 Años</span>
+<span class="font-mono-data text-mono-data text-white flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-outline">male</span> Masculino</span>
+<span class="font-mono-data text-mono-data text-white flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-outline">science</span> Dra. V. Silva</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-md mt-auto bg-surface-container-low/50 p-sm rounded-lg border border-white/5">
+<div class="flex flex-col">
+<span class="text-[10px] text-outline uppercase tracking-widest mb-1">Objetivo</span>
+<span class="font-mono-data text-white text-sm">Hipertrofia</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[10px] text-outline uppercase tracking-widest mb-1">Estado Clínico</span>
+<span class="font-mono-data text-primary text-sm flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-primary shadow-[0_0_5px_#00f2ff]"></span> Activo</span>
+</div>
+<div class="flex flex-col border-l border-white/10 pl-md">
+<span class="text-[10px] text-outline uppercase tracking-widest mb-1">Tiempo Seguimiento</span>
+<span class="font-mono-data text-white text-sm">5 Meses</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[10px] text-outline uppercase tracking-widest mb-1">Evaluaciones Tot.</span>
+<span class="font-mono-data text-white text-sm">04 Realizadas</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Selector Panel -->
+<div class="glass-panel rounded-xl p-lg w-full xl:w-[450px] flex flex-col gap-lg border border-white/10 shadow-2xl">
+<h3 class="font-label-caps text-label-caps text-outline flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">history_toggle_off</span> 
+                CONFIGURACIÓN DE COMPARATIVA
+            </h3>
+<div class="flex flex-col gap-md flex-1">
+<div class="flex flex-col gap-2">
+<label class="text-[10px] text-outline uppercase tracking-widest">Evaluación Inicial (A)</label>
+<select class="w-full bg-surface-container border border-white/10 text-white font-mono-data text-mono-data rounded p-md focus:border-primary focus:ring-1 focus:ring-primary outline-none appearance-none cursor-pointer">
+<option>15 Enero 2025 - Evaluación Base</option>
+<option>10 Diciembre 2024</option>
+</select>
+</div>
+<div class="flex justify-center -my-2 z-10">
+<div class="bg-surface-container border border-white/10 rounded-full p-2 flex items-center justify-center">
+<span class="material-symbols-outlined text-outline">compare_arrows</span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-[10px] text-primary uppercase tracking-widest">Evaluación Final (B)</label>
+<select class="w-full bg-surface-container border border-primary/30 text-primary font-mono-data text-mono-data rounded p-md focus:border-primary focus:ring-1 focus:ring-primary outline-none appearance-none cursor-pointer shadow-[inset_0_0_10px_rgba(0,242,255,0.05)]">
+<option>15 Junio 2025 - Actual</option>
+</select>
+</div>
+</div>
+<button class="w-full mt-auto bg-primary text-black font-label-caps text-label-caps py-md px-md rounded hover:bg-[#00dbe7] transition-colors flex justify-center items-center gap-sm shadow-[0_0_20px_rgba(0,242,255,0.3)] text-[14px]">
+<span class="material-symbols-outlined text-[20px]">sync</span>
+                COMPARAR RESULTADOS
+            </button>
+</div>
+</div>
+<!-- 3. IMMEDIATE RESULT HERO -->
+<div class="glass-panel rounded-xl p-lg mb-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+<div class="flex flex-col md:flex-row items-center justify-between gap-lg">
+<div class="flex items-center gap-lg">
+<div class="relative w-32 h-32 flex items-center justify-center flex-shrink-0">
+<svg class="w-full h-full transform -rotate-90 absolute" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="rgba(255,255,255,0.1)" stroke-width="8"></circle>
+<circle class="drop-shadow-[0_0_8px_#00f2ff]" cx="50" cy="50" fill="none" r="45" stroke="#00f2ff" stroke-dasharray="283" stroke-dashoffset="22.64" stroke-width="8"></circle>
+</svg>
+<div class="flex flex-col items-center z-10 text-center">
+<span class="font-headline-lg text-[32px] text-white leading-none">92</span>
+<span class="text-[10px] text-primary tracking-widest">/ 100</span>
+</div>
+</div>
+<div>
+<h3 class="font-label-caps text-label-caps text-outline mb-2">ÍNDICE DE ÉXITO CLÍNICO</h3>
+<div class="flex items-center gap-3">
+<span class="font-headline-lg text-[28px] text-white">Progreso Global</span>
+<span class="bg-primary/20 text-primary border border-primary/30 px-3 py-1 rounded text-xs font-bold tracking-widest">MEJORÍA SIGNIFICATIVA</span>
+</div>
+</div>
+</div>
+<div class="flex-1 max-w-xl w-full">
+<div class="flex justify-between text-[10px] text-outline mb-2 font-mono-data uppercase">
+<span>Base (0)</span>
+<span>Objetivo Cumplido (100)</span>
+</div>
+<div class="h-4 w-full bg-surface-container rounded-full overflow-hidden border border-white/10 relative">
+<div class="absolute inset-y-0 left-0 bg-gradient-to-r from-surface-variant to-primary w-[92%] relative">
+<div class="absolute right-0 top-0 bottom-0 w-4 bg-white/50 blur-sm"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 4. KPI ROW -->
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-md mb-lg">
+<!-- Peso -->
+<div class="glass-panel glass-glow rounded-lg p-md flex flex-col relative overflow-hidden">
+<span class="text-[10px] text-outline uppercase tracking-widest mb-3 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">scale</span> Peso</span>
+<div class="flex items-baseline gap-1 mb-1">
+<span class="font-headline-md text-2xl text-white">74.5</span>
+<span class="text-xs text-outline">kg</span>
+</div>
+<div class="text-[11px] text-outline font-mono-data mb-3">De: 80.0 kg</div>
+<div class="mt-auto flex items-center justify-between">
+<span class="text-xs text-primary font-mono-data flex items-center">-5.5 <span class="text-[10px] ml-1">(-6.8%)</span></span>
+<span class="material-symbols-outlined text-[16px] text-primary">trending_down</span>
+</div>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-primary/20"></div>
+</div>
+<!-- IMC -->
+<div class="glass-panel glass-glow rounded-lg p-md flex flex-col relative overflow-hidden">
+<span class="text-[10px] text-outline uppercase tracking-widest mb-3 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">monitor_weight</span> IMC</span>
+<div class="flex items-baseline gap-1 mb-1">
+<span class="font-headline-md text-2xl text-white">23.8</span>
+</div>
+<div class="text-[11px] text-outline font-mono-data mb-3">De: 25.5</div>
+<div class="mt-auto flex items-center justify-between">
+<span class="text-xs text-primary font-mono-data flex items-center">-1.7</span>
+<span class="material-symbols-outlined text-[16px] text-primary">trending_down</span>
+</div>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-primary/20"></div>
+</div>
+<!-- ICC -->
+<div class="glass-panel glass-glow rounded-lg p-md flex flex-col relative overflow-hidden">
+<span class="text-[10px] text-outline uppercase tracking-widest mb-3 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">accessibility_new</span> ICC</span>
+<div class="flex items-baseline gap-1 mb-1">
+<span class="font-headline-md text-2xl text-white">0.82</span>
+</div>
+<div class="text-[11px] text-outline font-mono-data mb-3">De: 0.88</div>
+<div class="mt-auto flex items-center justify-between">
+<span class="text-xs text-primary font-mono-data flex items-center">-0.06</span>
+<span class="material-symbols-outlined text-[16px] text-primary">trending_down</span>
+</div>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-primary/20"></div>
+</div>
+<!-- Masa Grasa -->
+<div class="glass-panel glass-glow rounded-lg p-md flex flex-col relative overflow-hidden border-t-2 border-t-primary">
+<div class="absolute -right-4 -top-4 w-16 h-16 bg-primary/10 rounded-full blur-xl"></div>
+<span class="text-[10px] text-outline uppercase tracking-widest mb-3 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">water_drop</span> M. Grasa</span>
+<div class="flex items-baseline gap-1 mb-1">
+<span class="font-headline-md text-2xl text-white">14.2</span>
+<span class="text-xs text-outline">%</span>
+</div>
+<div class="text-[11px] text-outline font-mono-data mb-3">De: 18.5%</div>
+<div class="mt-auto flex items-center justify-between bg-primary/10 p-1 -mx-1 rounded">
+<span class="text-xs text-primary font-mono-data font-bold">-4.3%</span>
+<span class="text-[9px] text-primary tracking-widest">FAVORABLE</span>
+</div>
+</div>
+<!-- Masa Muscular -->
+<div class="glass-panel glass-glow rounded-lg p-md flex flex-col relative overflow-hidden border-t-2 border-t-white">
+<span class="text-[10px] text-outline uppercase tracking-widest mb-3 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">fitness_center</span> M. Muscular</span>
+<div class="flex items-baseline gap-1 mb-1">
+<span class="font-headline-md text-2xl text-white">38.6</span>
+<span class="text-xs text-outline">kg</span>
+</div>
+<div class="text-[11px] text-outline font-mono-data mb-3">De: 38.2 kg</div>
+<div class="mt-auto flex items-center justify-between bg-white/5 p-1 -mx-1 rounded border border-white/10">
+<span class="text-xs text-white font-mono-data font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">arrow_upward</span> +0.4 kg</span>
+<span class="text-[9px] text-outline tracking-widest">ESTABLE</span>
+</div>
+</div>
+<!-- Grasa Visceral -->
+<div class="glass-panel glass-glow rounded-lg p-md flex flex-col relative overflow-hidden">
+<span class="text-[10px] text-outline uppercase tracking-widest mb-3 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">coronavirus</span> G. Visceral</span>
+<div class="flex items-baseline gap-1 mb-1">
+<span class="font-headline-md text-2xl text-white">4</span>
+<span class="text-xs text-outline">Nivel</span>
+</div>
+<div class="text-[11px] text-outline font-mono-data mb-3">De: 6</div>
+<div class="mt-auto flex items-center justify-between">
+<span class="text-xs text-primary font-mono-data">-2</span>
+<span class="material-symbols-outlined text-[16px] text-primary">trending_down</span>
+</div>
+</div>
+<!-- Agua Corporal -->
+<div class="glass-panel glass-glow rounded-lg p-md flex flex-col relative overflow-hidden">
+<span class="text-[10px] text-outline uppercase tracking-widest mb-3 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">waves</span> Agua Total</span>
+<div class="flex items-baseline gap-1 mb-1">
+<span class="font-headline-md text-2xl text-white">61.5</span>
+<span class="text-xs text-outline">%</span>
+</div>
+<div class="text-[11px] text-outline font-mono-data mb-3">De: 58.2%</div>
+<div class="mt-auto flex items-center justify-between">
+<span class="text-xs text-white font-mono-data">+3.3%</span>
+<span class="material-symbols-outlined text-[16px] text-white">trending_up</span>
+</div>
+</div>
+</div>
+<!-- 5. TRANSFORMATION HUB -->
+<h3 class="font-headline-md text-headline-md text-white mb-md flex items-center gap-2 border-b border-white/10 pb-sm">
+<span class="material-symbols-outlined text-primary">view_in_ar</span> Hub de Transformación
+    </h3>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg mb-xl">
+<!-- Slider Before/After -->
+<div class="glass-panel rounded-xl p-md lg:col-span-1 flex flex-col border border-white/5">
+<div class="flex justify-between items-center mb-md">
+<h4 class="font-label-caps text-label-caps text-white">Documentación Fotográfica</h4>
+<div class="flex gap-2">
+<span class="text-[10px] text-outline font-mono-data bg-surface-container px-2 py-1 rounded">A: ENE</span>
+<span class="text-[10px] text-primary font-mono-data bg-primary/10 px-2 py-1 rounded border border-primary/20">B: JUN</span>
+</div>
+</div>
+<div class="slider-container flex-1 bg-black rounded-lg border border-white/10">
+<img alt="Before Image" class="slider-image opacity-80 mix-blend-luminosity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEfacZub7-_K16hU6SnAa7EjvuzLoi9mOKJpbVTIGpD6kL4Poi_vVd1xsz1l7OUNI1zcJU8_85e50cNTqoW4OESZkkt7XneZqtnCSjdYMxxDZ2N3yd8oHww1D5IfViRkGrV1niP6L-X9OgGNFHxwids_QTFV3afl84f_iS3hQroQbfTy1xllAve92fKmHZGf2qOiDHLebp1Ftf7Y5fNT7cVxHrHiGQhnnY6f0eT15ON3OTgTJZEHTAzUl7XKxJoQEKo-y6mP9RVGyf"/>
+<div class="slider-overlay" id="slider-overlay">
+<img alt="After Image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSoCpSE8o5xtGwaTNQ2T89sG6msE2_ea3ye-V-Jh_2j6k9oqt3cq_hw1_mgoODkWnfJiprA5AoH5OqqpEwsSAShhUgQqqEl0dnFgNOKDCM_1fR4l4p0rU7iOHUoIGeCi8VvT-COpdoe6XYe96skFB-fgi8nHpPhhp8IhjxPBwew_BoS6yrQ357tihIsdL3RAu4bUTdXeWeSXU8bE2IH8tkO18RY_3dmg2pFN5WRp2nAO8tYenZTLzMinHGxSgTY78nSSUV433eImjK"/>
+</div>
+<div class="slider-handle" id="slider-handle"></div>
+<div class="absolute bottom-4 left-4 bg-black/80 backdrop-blur border border-white/20 px-3 py-1 rounded font-mono-data text-xs text-white z-20">15/01/25</div>
+<div class="absolute bottom-4 right-4 bg-primary/20 backdrop-blur border border-primary/50 px-3 py-1 rounded font-mono-data text-xs text-primary z-20 shadow-[0_0_10px_rgba(0,242,255,0.2)]">15/06/25</div>
+</div>
+</div>
+<!-- Radar Chart & Visualization -->
+<div class="glass-panel rounded-xl p-md lg:col-span-2 flex flex-col border border-white/5">
+<div class="flex justify-between items-center mb-md border-b border-white/5 pb-md">
+<h4 class="font-label-caps text-label-caps text-white">Análisis Multidimensional (Pliegues mm)</h4>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-sm bg-surface-variant border border-outline"></div>
+<span class="text-xs text-outline font-mono-data">Inicial</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-sm bg-primary/30 border border-primary"></div>
+<span class="text-xs text-primary font-mono-data">Final</span>
+</div>
+</div>
+</div>
+<div class="flex-1 flex flex-col md:flex-row items-center justify-center gap-xl relative">
+<!-- Abstract Body Model overlaying data -->
+<div class="hidden md:flex w-1/3 h-full items-center justify-center relative opacity-30">
+<span class="material-symbols-outlined text-[300px] text-white font-thin">accessibility</span>
+<!-- Data points on body -->
+<div class="absolute top-[30%] right-[35%] w-2 h-2 bg-primary rounded-full shadow-[0_0_10px_#00f2ff]"></div> <!-- Triceps -->
+<div class="absolute top-[45%] right-[45%] w-2 h-2 bg-primary rounded-full shadow-[0_0_10px_#00f2ff]"></div> <!-- Abdomen -->
+<div class="absolute top-[48%] right-[30%] w-2 h-2 bg-primary rounded-full shadow-[0_0_10px_#00f2ff]"></div> <!-- Cresta -->
+</div>
+<div class="w-full md:w-2/3 max-w-[500px] aspect-square relative">
+<canvas id="radarChart"></canvas>
+</div>
+</div>
+</div>
+</div>
+<!-- 6. DATA DEEP-DIVE -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg mb-xl">
+<!-- Table (Spans 2 cols) -->
+<div class="glass-panel rounded-xl lg:col-span-2 overflow-hidden border border-white/5 flex flex-col">
+<div class="p-md border-b border-white/10 flex justify-between items-center bg-surface-container/50">
+<h4 class="font-label-caps text-label-caps text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">table_rows</span> MATRIZ DE DATOS CLÍNICOS
+                </h4>
+</div>
+<div class="overflow-x-auto flex-1">
+<table class="w-full text-left border-collapse min-w-[600px]">
+<thead>
+<tr class="bg-surface-container-lowest font-label-caps text-[10px] text-outline border-b border-white/10 uppercase tracking-wider">
+<th class="p-md font-medium">Indicador</th>
+<th class="p-md font-medium text-right">Inicial (A)</th>
+<th class="p-md font-medium text-right text-primary">Final (B)</th>
+<th class="p-md font-medium text-right">Δ Absoluto</th>
+<th class="p-md font-medium text-right">Δ %</th>
+<th class="p-md font-medium text-center">Status</th>
+</tr>
+</thead>
+<tbody class="font-mono-data text-sm text-white divide-y divide-white/5">
+<tr class="hover:bg-white/5 transition-colors">
+<td class="p-md text-outline">Perímetro Abdominal</td>
+<td class="p-md text-right">88.5 cm</td>
+<td class="p-md text-right text-primary font-bold">82.0 cm</td>
+<td class="p-md text-right">-6.5 cm</td>
+<td class="p-md text-right text-primary">-7.3%</td>
+<td class="p-md text-center"><span class="bg-primary/10 text-primary border border-primary/20 px-2 py-1 rounded text-[10px] tracking-widest font-bold">MEJORÓ</span></td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="p-md text-outline">Perímetro Brazo (Contraído)</td>
+<td class="p-md text-right">36.0 cm</td>
+<td class="p-md text-right text-white font-bold">36.2 cm</td>
+<td class="p-md text-right">+0.2 cm</td>
+<td class="p-md text-right text-white">+0.5%</td>
+<td class="p-md text-center"><span class="bg-white/5 text-outline border border-white/10 px-2 py-1 rounded text-[10px] tracking-widest font-bold">MANTENIDO</span></td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="p-md text-outline">Pliegue Tricipital</td>
+<td class="p-md text-right">12.0 mm</td>
+<td class="p-md text-right text-primary font-bold">8.5 mm</td>
+<td class="p-md text-right">-3.5 mm</td>
+<td class="p-md text-right text-primary">-29.1%</td>
+<td class="p-md text-center"><span class="bg-primary/10 text-primary border border-primary/20 px-2 py-1 rounded text-[10px] tracking-widest font-bold">MEJORÓ</span></td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="p-md text-outline">Pliegue Suprailiaco</td>
+<td class="p-md text-right">18.5 mm</td>
+<td class="p-md text-right text-primary font-bold">12.0 mm</td>
+<td class="p-md text-right">-6.5 mm</td>
+<td class="p-md text-right text-primary">-35.1%</td>
+<td class="p-md text-center"><span class="bg-primary/10 text-primary border border-primary/20 px-2 py-1 rounded text-[10px] tracking-widest font-bold">MEJORÓ</span></td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="p-md text-outline">Masa Libre de Grasa</td>
+<td class="p-md text-right">65.2 kg</td>
+<td class="p-md text-right text-white font-bold">66.1 kg</td>
+<td class="p-md text-right">+0.9 kg</td>
+<td class="p-md text-right text-white">+1.3%</td>
+<td class="p-md text-center"><span class="bg-primary/10 text-primary border border-primary/20 px-2 py-1 rounded text-[10px] tracking-widest font-bold">MEJORÓ</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Historic Line Chart -->
+<div class="glass-panel rounded-xl p-md flex flex-col border border-white/5">
+<h4 class="font-label-caps text-label-caps text-white mb-md border-b border-white/10 pb-md flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">show_chart</span> TENDENCIA HISTÓRICA
+            </h4>
+<div class="flex gap-2 mb-4">
+<button class="flex-1 bg-primary/20 border border-primary/50 text-primary text-[10px] font-mono-data py-1 rounded">Peso</button>
+<button class="flex-1 bg-surface-container border border-white/10 text-outline hover:text-white text-[10px] font-mono-data py-1 rounded">M. Muscular</button>
+<button class="flex-1 bg-surface-container border border-white/10 text-outline hover:text-white text-[10px] font-mono-data py-1 rounded">% Grasa</button>
+</div>
+<div class="flex-1 w-full relative min-h-[250px]">
+<canvas id="lineChart"></canvas>
+</div>
+</div>
+</div>
+<!-- 7. AI INSIGHTS & TIMELINE -->
+<div class="glass-panel border-l-4 border-l-primary rounded-xl p-lg mb-xl relative overflow-hidden bg-gradient-to-br from-surface-container to-surface-container-lowest">
+<div class="absolute top-0 right-0 p-8 opacity-5">
+<span class="material-symbols-outlined text-[150px] text-primary">psychology</span>
+</div>
+<h4 class="font-label-caps text-label-caps text-primary mb-md flex items-center gap-2">
+<span class="material-symbols-outlined">auto_awesome</span> SÍNTESIS ANALÍTICA GENERADA POR IA
+        </h4>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg relative z-10">
+<ul class="space-y-4 font-body-md text-sm text-white/90">
+<li class="flex gap-3 items-start">
+<span class="material-symbols-outlined text-primary text-[18px] mt-0.5">check_circle</span>
+<p>Reducción significativa de tejido adiposo (-3.2 kg) manteniendo un nivel óptimo de masa muscular (+0.4 kg).</p>
+</li>
+<li class="flex gap-3 items-start">
+<span class="material-symbols-outlined text-primary text-[18px] mt-0.5">check_circle</span>
+<p>La recomposición corporal sugiere alta adherencia al protocolo nutricional de déficit controlado.</p>
+</li>
+<li class="flex gap-3 items-start">
+<span class="material-symbols-outlined text-outline text-[18px] mt-0.5">info</span>
+<p>Notable disminución en pliegues centrales (Suprailiaco y Abdominal), indicando reducción de riesgo metabólico.</p>
+</li>
+</ul>
+<ul class="space-y-4 font-body-md text-sm text-white/90">
+<li class="flex gap-3 items-start">
+<span class="material-symbols-outlined text-outline text-[18px] mt-0.5">info</span>
+<p>Los perímetros musculares (Brazo, Pierna) se mantienen estables, confirmando retención de tejido magro.</p>
+</li>
+<li class="flex gap-3 items-start">
+<span class="material-symbols-outlined text-primary text-[18px] mt-0.5">insights</span>
+<p><strong>Recomendación:</strong> Transicionar gradualmente a mantenimiento calórico o ligero superávit para potenciar hipertrofia en próxima fase.</p>
+</li>
+</ul>
+</div>
+<!-- Timeline -->
+<div class="mt-lg pt-lg border-t border-white/10 relative z-10">
+<div class="flex items-center justify-between relative">
+<div class="absolute left-0 right-0 top-1/2 h-[1px] bg-white/10 -z-10"></div>
+<div class="flex flex-col items-center gap-2 bg-surface-container-lowest px-2">
+<div class="w-3 h-3 rounded-full bg-surface-variant border-2 border-outline"></div>
+<span class="text-[10px] font-mono-data text-outline">Oct 24</span>
+</div>
+<div class="flex flex-col items-center gap-2 bg-surface-container-lowest px-2">
+<div class="w-3 h-3 rounded-full bg-surface-variant border-2 border-outline"></div>
+<span class="text-[10px] font-mono-data text-outline">Dic 24</span>
+</div>
+<div class="flex flex-col items-center gap-2 bg-surface-container-lowest px-2">
+<div class="w-4 h-4 rounded-full bg-surface-container border-2 border-primary shadow-[0_0_8px_rgba(0,242,255,0.5)]"></div>
+<span class="text-[10px] font-mono-data text-white font-bold">Ene 25 (A)</span>
+</div>
+<div class="flex flex-col items-center gap-2 bg-surface-container-lowest px-2">
+<div class="w-3 h-3 rounded-full bg-surface-variant border-2 border-outline"></div>
+<span class="text-[10px] font-mono-data text-outline">Mar 25</span>
+</div>
+<div class="flex flex-col items-center gap-2 bg-surface-container-lowest px-2">
+<div class="w-4 h-4 rounded-full bg-primary border-2 border-white shadow-[0_0_15px_#00f2ff]"></div>
+<span class="text-[10px] font-mono-data text-primary font-bold">Jun 25 (B)</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- 8. FOOTER BAR -->
+<div class="fixed bottom-0 md:left-64 right-0 bg-surface-container-lowest/95 backdrop-blur-xl border-t border-white/10 p-md flex flex-col sm:flex-row justify-between items-center z-50 gap-4">
+<button class="font-label-caps text-label-caps text-outline hover:text-white transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+        VOLVER AL EXPEDIENTE
+    </button>
+<div class="flex flex-wrap justify-center sm:justify-end gap-md w-full sm:w-auto">
+<button class="px-md py-sm rounded border border-white/10 text-white font-label-caps text-label-caps hover:bg-white/5 transition-colors flex items-center gap-2 text-xs">
+<span class="material-symbols-outlined text-[16px]">share</span>
+            COMPARTIR
+        </button>
+<button class="px-md py-sm rounded border border-white/10 text-white font-label-caps text-label-caps hover:bg-white/5 transition-colors flex items-center gap-2 text-xs">
+<span class="material-symbols-outlined text-[16px]">print</span>
+            IMPRIMIR
+        </button>
+<button class="px-md py-sm rounded bg-surface-container text-white border border-outline/30 font-label-caps text-label-caps hover:bg-white/5 transition-colors flex items-center gap-2 text-xs">
+<span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+            EXPORTAR PDF
+        </button>
+<button class="px-md py-sm rounded bg-primary text-black font-label-caps text-label-caps hover:bg-[#00dbe7] transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(0,242,255,0.2)] text-xs font-bold">
+<span class="material-symbols-outlined text-[16px]">save</span>
+            GUARDAR REPORTE
+        </button>
+</div>
+</div>
+<script>
+    // Before/After Slider
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.querySelector('.slider-container');
+        if(!container) return;
+        
+        const slider = document.getElementById('slider-handle');
+        const overlay = document.getElementById('slider-overlay');
+        
+        let isDragging = false;
+
+        container.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            updateSlider(e);
+        });
+        
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+        
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            updateSlider(e);
+        });
+        
+        container.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            updateSlider(e.touches[0]);
+        });
+        
+        window.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+        
+        window.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            updateSlider(e.touches[0]);
+        });
+
+        function updateSlider(e) {
+            const rect = container.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            
+            if (x < 0) x = 0;
+            if (x > rect.width) x = rect.width;
+            
+            const percentage = (x / rect.width) * 100;
+            
+            overlay.style.width = `${100 - percentage}%`;
+            slider.style.left = `${percentage}%`;
+        }
+
+        // Initialize Charts
+        Chart.defaults.color = '#849495';
+        Chart.defaults.font.family = 'Inter';
+
+        // Radar Chart
+        const radarCtx = document.getElementById('radarChart');
+        if(radarCtx) {
+            new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Tricipital', 'Subescapular', 'Bicipital', 'Cresta Iliaca', 'Supraespinal', 'Abdominal', 'Muslo'],
+                    datasets: [
+                        {
+                            label: 'Inicial (15 Ene)',
+                            data: [12, 14, 8, 16, 18.5, 22, 15],
+                            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                            borderColor: '#849495',
+                            pointBackgroundColor: '#849495',
+                            borderWidth: 1,
+                            pointRadius: 3
+                        },
+                        {
+                            label: 'Final (15 Jun)',
+                            data: [8.5, 10, 6, 11, 12, 14, 12],
+                            backgroundColor: 'rgba(0, 242, 255, 0.2)',
+                            borderColor: '#00f2ff',
+                            pointBackgroundColor: '#00f2ff',
+                            pointBorderColor: '#fff',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            pointLabels: {
+                                color: '#ffffff',
+                                font: { size: 10, family: 'Inter' }
+                            },
+                            ticks: { display: false, min: 0, max: 25 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(13, 21, 21, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#00f2ff',
+                            borderColor: 'rgba(0, 242, 255, 0.3)',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Line Chart
+        const lineCtx = document.getElementById('lineChart');
+        if(lineCtx) {
+            new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Oct', 'Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Peso Corporal (kg)',
+                        data: [82, 81.5, 80.8, 80.0, 78.5, 77.2, 76.0, 75.1, 74.5],
+                        borderColor: '#00f2ff',
+                        backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#080f10',
+                        pointBorderColor: '#00f2ff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#849495', font: { size: 10 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#849495', font: { size: 10 } }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(13, 21, 21, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#00f2ff',
+                            borderColor: 'rgba(0, 242, 255, 0.3)',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: false
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+</body></html>
